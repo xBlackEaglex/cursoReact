@@ -1,37 +1,36 @@
-import { createContext, useContext } from "react";
+import { createContext, Component } from "react";
 
-const ContextDefault = createContext(' valor por defecto ')
-const Context2 = createContext(' valor por defecto 2 ')
+const Context = createContext('mi valor')
 
-const DefaultProvider = ({children}) => {
+const Provider = ({children}) => {
   return (
-    <ContextDefault.Provider value={'mi valor'}>
+    <Context.Provider value="otro valor">
       {children}
-    </ContextDefault.Provider>
+    </Context.Provider>
   )
 }
 
-const Contenido = () => {
-  const ctx = useContext(ContextDefault)
-  return (
-    <div>{ctx}</div>
-  )
+class Componente extends Component {
+  // static contextType = Context
+  render() {
+    console.log(this.context);
+    return (
+      <div>Hola Mundo</div>
+    )
+  }
 }
 
-const Contenido2 = () => {
-  const ctx = useContext(Context2)
-  return (
-    <div>{ctx}</div>
-  )
-}
+Componente.contextType = Context
 
-function App() {
-  return (
-    <DefaultProvider>
-      <Contenido />
-      <Contenido2 />
-    </DefaultProvider>
-  );
+const App = () => {
+  return(
+    <Provider>
+      <Componente />
+      <Context.Consumer>
+        {valor => <div>{valor}</div>}
+      </Context.Consumer>
+    </Provider>
+  )
 }
 
 export default App;
