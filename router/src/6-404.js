@@ -1,15 +1,6 @@
-import { Routes, Route, Link, useLocation } from 'react-router-dom'
-
-function useQuery(){
-  return new URLSearchParams(useLocation().search)
-}
+import { Routes, Route, Link } from 'react-router-dom'
 
 function App() {
-
-  const query = useQuery()
-  const chancho = query.get('chanchito')
-  const nombre = query.get('nombre')
-  console.log({chancho, nombre});
   return (
     <div>
       <nav>

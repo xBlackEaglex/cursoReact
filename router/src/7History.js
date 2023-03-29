@@ -1,15 +1,18 @@
-import { Routes, Route, Link, useLocation } from 'react-router-dom'
-
-function useQuery(){
-  return new URLSearchParams(useLocation().search)
-}
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 
 function App() {
 
-  const query = useQuery()
-  const chancho = query.get('chanchito')
-  const nombre = query.get('nombre')
-  console.log({chancho, nombre});
+  const history = useNavigate()
+  console.log({history});
+
+  const back = () => {
+    history(-1)
+  }
+
+  const forward = () => {
+    history(1)
+  }
+
   return (
     <div>
       <nav>
@@ -23,6 +26,8 @@ function App() {
         </ul>
       </nav>
       <section>
+        <button onClick={back}>Back</button>
+        <button onClick={forward}>Forward</button>
         <Routes>
           <Route exact path="*" element={<h2>404: ruta no encontrada</h2>} />
           <Route exact path="/" element={<h1>Inicio</h1>} />
