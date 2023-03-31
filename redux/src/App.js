@@ -1,40 +1,70 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import './App.css';
+import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 
-export const reducer = (state = 0, action) => {
-  console.log({action, state});
+const initialState = {
+  entities: [],
+}
+export const reducer = (state = initialState, action) => {
   switch(action.type) {
-    case 'incrementar': {
-      return state + 1
+    case 'todo/add': {
+      return {
+        ...state,
+        entities: state.entities.concat({...action.payload})
+      }
     }
-    case 'decrementar': {
-      return state - 1
+    case 'todo/complete': {
+      const newTodos = state.entities.map(todo => {
+        if ( todo.id === action.payload.id){
+          return {...todo, complete: !todo.complete}
+        }
+        return todo
+      })
+      return{
+        ...state,
+        entities: newTodos
+      }
     }
-    case 'set': {
-      return action.payload
-    }
-    default: {  
+    default: {
       return state
     }
   }
 }
 
-function App() {
-  const [valor, setValor] = useState('')
+const TodoItem = ({todo}) => {
   const dispatch = useDispatch()
-  const state = useSelector(state => state)
-  const set = () => {
-    dispatch({type: 'set', payload: valor})
-    setValor('')
+  return (
+    <li
+      style={{textDecoration: todo.complete ? 'line-through' : 'none'}}
+      onClick={() => dispatch({type: 'todo/complete', payload: todo})}
+    >{todo.title}</li>
+  )
+}
+
+function App() {
+  const [value, setValue] = useState('')
+  const dispatch = useDispatch()
+  const state = useSelector(x => x)
+  const submit = e => {
+    e.preventDefault()
+    if (!value.trim()){
+      return
+    }
+    const id = Math.random().toString(36)
+    const todo = { title: value, copleted: false, id }
+    dispatch({ type: 'todo/add', payload: todo})
+    setValue('')
   }
   return (
     <div>
-      <p>Contador: {state}</p>
-      <button onClick={() => dispatch({type: 'incrementar'})}>Incrementar</button>
-      <button onClick={() => dispatch({type: 'decrementar'})}>Decrementar</button>
-      <button onClick={set}>Set</button>
-      <input value={valor} onChange={e => setValor(Number(e.target.value))} />
+      <form onSubmit={submit}>
+        <input value={value} onChange={e => setValue(e.target.value)} />
+      </form>
+      <button>Mostrar todos</button>
+      <button>Completados</button>  
+      <button>Incompletos</button>  
+      <ul>
+        {state.entities.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+      </ul>
     </div>
   );
 }
