@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 const initialState = {
   entities: [],
+  filter: 'all', //complete || incomplete 
 }
 export const reducer = (state = initialState, action) => {
   switch(action.type) {
@@ -24,10 +25,30 @@ export const reducer = (state = initialState, action) => {
         entities: newTodos
       }
     }
+    case 'filter/set': {
+      return {
+        ...state,
+        filter: action.payload,
+      }
+    }
     default: {
       return state
     }
   }
+}
+
+const selectTodos = state => {
+  const {entities, filter} = state
+
+  if(filter === 'complete') {
+    return entities.filter(todo => todo.complete)
+  }
+  
+  if(filter === 'incomplete') {
+    return entities.filter(todo => !todo.complete)
+  }
+
+  return entities
 }
 
 const TodoItem = ({todo}) => {
@@ -43,14 +64,14 @@ const TodoItem = ({todo}) => {
 function App() {
   const [value, setValue] = useState('')
   const dispatch = useDispatch()
-  const state = useSelector(x => x)
+  const todos = useSelector(selectTodos)
   const submit = e => {
     e.preventDefault()
     if (!value.trim()){
       return
     }
     const id = Math.random().toString(36)
-    const todo = { title: value, copleted: false, id }
+    const todo = { title: value, complete: false, id }
     dispatch({ type: 'todo/add', payload: todo})
     setValue('')
   }
@@ -59,11 +80,11 @@ function App() {
       <form onSubmit={submit}>
         <input value={value} onChange={e => setValue(e.target.value)} />
       </form>
-      <button>Mostrar todos</button>
-      <button>Completados</button>  
-      <button>Incompletos</button>  
+      <button onClick={() => dispatch({type: 'filter/set', payload: 'all'})}>Mostrar todos</button>
+      <button onClick={() => dispatch({type: 'filter/set', payload: 'complete'})}>Completados</button>  
+      <button onClick={() => dispatch({type: 'filter/set', payload: 'incomplete'})}>Incompletos</button>  
       <ul>
-        {state.entities.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+        {todos.map(todo => <TodoItem key={todo.id} todo={todo} />)}
       </ul>
     </div>
   );
